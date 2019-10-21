@@ -69,7 +69,7 @@ abstract class SlackMethod
      */
     public function cachePut($key, $value, $minutes = 1)
     {
-        $this->cache->put($this->cachePrefix($key), $value, $minutes);
+        $this->cache->put($this->cachePrefix($key), $value, $minutes * 60);
 
         return $value;
     }
@@ -84,7 +84,7 @@ abstract class SlackMethod
      */
     public function cacheRemember($key, $minutes, $callback)
     {
-        return $this->cache->remember($this->cachePrefix($key), $minutes, $callback);
+        return $this->cache->remember($this->cachePrefix($key), $minutes * 60, $callback);
     }
 
     /**
