@@ -70,7 +70,11 @@ abstract class SlackMethod
      */
     public function cachePut($key, $value, $minutes = 1)
     {
+<<<<<<< HEAD
         $this->cache->put($this->cachePrefix($key), $value, Carbon::now()->addMinutes($minutes));
+=======
+        $this->cache->put($this->cachePrefix($key), $value, $minutes * 60);
+>>>>>>> d1680d6 (Update To Laravel 6)
 
         return $value;
     }
@@ -85,7 +89,11 @@ abstract class SlackMethod
      */
     public function cacheRemember($key, $minutes, $callback)
     {
+<<<<<<< HEAD
         return $this->cache->remember($this->cachePrefix($key), Carbon::now()->addMinutes($minutes), $callback);
+=======
+        return $this->cache->remember($this->cachePrefix($key), $minutes * 60, $callback);
+>>>>>>> d1680d6 (Update To Laravel 6)
     }
 
     /**
