@@ -4,13 +4,13 @@ namespace Vluzrmos\SlackApi\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class SlackUser extends Facade
+class SlackOAuth extends Facade
 {
     /**
      * @return string
      */
     protected static function getFacadeAccessor()
     {
-        return 'slack.user';
+        return 'slack.o_auth';
     }
 }

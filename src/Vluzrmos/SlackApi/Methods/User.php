@@ -32,7 +32,7 @@ class User extends SlackMethod implements SlackUser
     {
         $user = $this->getUsersIDsByNicks($user);
 
-        return $this->method('info', ['user' => isset($user[0]) ? $user[0]: null]);
+        return $this->method('info', ['user' => isset($user[0]) ? $user[0] : null]);
     }
 
     /**
@@ -100,15 +100,15 @@ class User extends SlackMethod implements SlackUser
      *
      * @return array
      */
-    public function getUsersIDsByNicks($nicks, $force = false,  $cacheMinutes = 1)
+    public function getUsersIDsByNicks($nicks, $force = false, $cacheMinutes = 1)
     {
         $users = $this->cacheGet('list');
 
-        if (! $users || $force) {
+        if (!$users || $force) {
             $users = $this->cachePut('list', $this->lists(), $cacheMinutes);
         }
 
-        if (! is_array($nicks)) {
+        if (!is_array($nicks)) {
             $nicks = preg_split('/, ?/', $nicks);
         }
 
@@ -130,7 +130,7 @@ class User extends SlackMethod implements SlackUser
     /**
      * Verify if a given nick is for the user.
      *
-     * @param array $user
+     * @param array|object $user
      * @param string $nick
      *
      * @return bool
@@ -138,8 +138,13 @@ class User extends SlackMethod implements SlackUser
     protected function isUserNick($user, $nick)
     {
         $nick = str_replace('@', '', $nick);
+        $user = (object) $user;
 
-        return $nick == $user->name || $nick == $user->id;
+        if (!empty($user->name) && $nick === $user->name) {
+            return true;
+        }
+
+        return !empty($user->id) && $nick === $user->id;
     }
 
     /**
@@ -151,6 +156,8 @@ class User extends SlackMethod implements SlackUser
      */
     protected function isSlackbotNick($nick)
     {
-        return $nick == 'slackbot' or $nick == '@slackbot' or $nick == 'USLACKBOT';
+        $names = ['slackbot', '@slackbot', 'USLACKBOT'];
+
+        return in_array($nick, $names, true);
     }
 }

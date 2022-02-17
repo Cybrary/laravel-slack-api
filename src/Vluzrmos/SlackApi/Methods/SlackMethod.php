@@ -3,6 +3,7 @@
 namespace Vluzrmos\SlackApi\Methods;
 
 use Vluzrmos\SlackApi\Contracts\SlackApi;
+use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository as Cache;
 
 abstract class SlackMethod
@@ -46,7 +47,7 @@ abstract class SlackMethod
      */
     public function method($method, $params = [], $http = 'post')
     {
-        return call_user_func([$this->getApi(), $http], $this->methodsGroup.$method, $params);
+        return call_user_func([$this->getApi(), $http], $this->methodsGroup . $method, $params);
     }
 
     /**
@@ -69,7 +70,7 @@ abstract class SlackMethod
      */
     public function cachePut($key, $value, $minutes = 1)
     {
-        $this->cache->put($this->cachePrefix($key), $value, $minutes * 60);
+        $this->cache->put($this->cachePrefix($key), $value, Carbon::now()->addMinutes($minutes));
 
         return $value;
     }
@@ -84,7 +85,7 @@ abstract class SlackMethod
      */
     public function cacheRemember($key, $minutes, $callback)
     {
-        return $this->cache->remember($this->cachePrefix($key), $minutes * 60, $callback);
+        return $this->cache->remember($this->cachePrefix($key), Carbon::now()->addMinutes($minutes), $callback);
     }
 
     /**
@@ -139,6 +140,6 @@ abstract class SlackMethod
      */
     protected function cachePrefix($key = null)
     {
-        return $this->cachePrefix.$key;
+        return $this->cachePrefix . $key;
     }
 }

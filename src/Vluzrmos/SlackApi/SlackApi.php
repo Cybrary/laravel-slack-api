@@ -4,6 +4,7 @@ namespace Vluzrmos\SlackApi;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Traits\Macroable;
+use Illuminate\Support\Str;
 use Vluzrmos\SlackApi\Contracts\SlackApi as Contract;
 
 class SlackApi implements Contract
@@ -130,17 +131,17 @@ class SlackApi implements Contract
      */
     public function load($method)
     {
-        if (str_contains($method, '.')) {
+        if (Str::contains($method, '.')) {
             return app($method);
         }
 
-        $contract = __NAMESPACE__.'\\Contracts\\Slack'.studly_case($method);
+        $contract = __NAMESPACE__ . '\\Contracts\\Slack' . Str::studly($method);
 
         if (class_exists($contract)) {
             return app($contract);
         }
 
-        return app('slack.'.snake_case($method));
+        return app('slack.' . Str::snake($method));
     }
 
     /**
@@ -174,7 +175,7 @@ class SlackApi implements Contract
     {
         if (is_callable($client)) {
             $this->client = value($client);
-        } elseif (is_null($client) and is_null($this->client)) {
+        } elseif (is_null($client) && is_null($this->client)) {
             $this->client = new Client(['verify' => false]);
         } else {
             $this->client = $client;
@@ -195,15 +196,17 @@ class SlackApi implements Contract
      */
     protected function http($verb = 'get', $url = '', $parameters = [])
     {
+        $client = $this->getHttpClient();
+
         /* @var  \GuzzleHttp\Psr7\Response|\GuzzleHttp\Message\Response $response */
         try {
-            $response = $this->getHttpClient()->$verb($url, $parameters);
+            $response = $client->$verb($url, $parameters);
         } catch (\InvalidArgumentException $e) {
             $parameters['body'] = $parameters['form_params'];
 
             unset($parameters['form_params']);
 
-            $response = $this->getHttpClient()->$verb($url, $parameters);
+            $response = $client->$verb($url, $parameters);
         }
 
         /** @var  $contents */
@@ -218,7 +221,7 @@ class SlackApi implements Contract
      */
     protected function responseToJson($response)
     {
-        return json_decode($response->getBody()->getContents());
+        return json_decode($response->getBody()->getContents(), config('slack-api.response_to_assoc_array'));
     }
 
     /**
@@ -230,12 +233,16 @@ class SlackApi implements Contract
      */
     protected function mergeParameters($parameters = [])
     {
-        $options['query'] = [
-            't' => time(),
-            'token' => $this->getToken(),
+        $options = [
+            'query' => [
+                't' => time()
+            ],
+            'headers' => [
+                'Authorization' => "Bearer {$this->getToken()}"
+            ]
         ];
 
-        if (isset($parameters['attachments']) and is_array($parameters['attachments'])) {
+        if (isset($parameters['attachments']) && is_array($parameters['attachments'])) {
             $parameters['attachments'] = json_encode($parameters['attachments']);
         }
 
@@ -263,7 +270,7 @@ class SlackApi implements Contract
      */
     protected function getUrl($method = null)
     {
-        return str_finish($this->url, '/').$method;
+        return Str::finish($this->url, '/') . $method;
     }
 
     /**
