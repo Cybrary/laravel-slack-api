@@ -39,16 +39,16 @@ class Channel extends SlackMethod implements SlackChannel
      * @see https://api.slack.com/methods/conversations.history
      *
      * @param string $channel Channel to fetch history for.
-     * @param int    $count Number of messages to return, between 1 and 1000.
+     * @param int    $limit Number of messages to return, between 1 and 1000.
      * @param string $latest End of time range of messages to include in results.
      * @param int    $oldest Start of time range of messages to include in results.
      * @param int    $inclusive Include messages with latest or oldest timestamp in results.
      *
      * @return array
      */
-    public function history($channel, $count = 100, $latest = null, $oldest = 0, $inclusive = 1)
+    public function history($channel, $limit = 100, $latest = null, $oldest = 0, $inclusive = 1)
     {
-        return $this->method('history', compact('channel', 'count', 'latest', 'oldest', 'inclusive'));
+        return $this->method('history', compact('channel', 'limit', 'latest', 'oldest', 'inclusive'));
     }
 
     /**
@@ -91,7 +91,7 @@ class Channel extends SlackMethod implements SlackChannel
      */
     public function join($name)
     {
-        return $this->method('join', ['name' => $name]);
+        return $this->method('join', ['channel' => $name]);
     }
 
     /**
@@ -130,12 +130,12 @@ class Channel extends SlackMethod implements SlackChannel
      * @see https://api.slack.com/methods/conversations.list
      *
      * @param int $exclude_archived Don't return archived conversations.
-     *
+     * @param array $options ['limit' = 100, 'cursor' => "dXNlcjpVMDYxTkZUVDI=", types => "public_channel", "team_id"=>,T1234567890 ]
      * @return array
      */
-    public function all($exclude_archived = 1)
+    public function all($exclude_archived = 1, $options = [])
     {
-        return $this->method('list', compact('exclude_archived'));
+        return $this->method('list', array_merge(compact('exclude_archived'), $options));
     }
 
     /**
@@ -145,12 +145,13 @@ class Channel extends SlackMethod implements SlackChannel
      * @see https://api.slack.com/methods/conversations.list
      *
      * @param int $exclude_archived Don't return archived conversations.
+     * @param array $options ['limit' = 100, 'cursor' => "dXNlcjpVMDYxTkZUVDI=", types => "public_channel", "team_id"=>,T1234567890 ]
      *
      * @return array
      */
-    public function lists($exclude_archived = 1)
+    public function lists($exclude_archived = 1, $options = [])
     {
-        return $this->all($exclude_archived);
+        return $this->all($exclude_archived, $options);
     }
 
     /**
